@@ -1,34 +1,28 @@
 <template>
   <div class="main-container">
-    <div class="login-container">
-      <div class="title">Signup Form</div>
-      <Form @submit="onSubmit">
-      <!-- <Form @submit="onSubmit" :validation-schema="schema"> -->
-
+    <div class="profile-container">
+      <div class="title">Profile Form</div>
+      <Form @submit="onSubmit" :validation-schema="schema">
         <div class="form-group">
-          <label for="name">Name</label>
-          <Field name="name" type="text" placeholder="Enter your name" />
-          <ErrorMessage name="name" class="error" />
+          <label for="phone">Phone Number</label>
+          <Field name="phone" type="text" placeholder="Enter your phone number" />
+          <ErrorMessage name="phone" class="error" />
         </div>
 
         <div class="form-group">
-          <label for="email">Email</label>
-          <Field name="email" type="email" placeholder="Enter your email" />
-          <ErrorMessage name="email" class="error" />
+          <label for="address">Address</label>
+          <Field name="address" type="text" placeholder="Enter your address" />
+          <ErrorMessage name="address" class="error" />
         </div>
 
         <div class="form-group">
-          <label for="password">Password</label>
-          <Field
-            name="password"
-            type="password"
-            placeholder="Enter your password"
-          />
-          <ErrorMessage name="password" class="error" />
+          <label for="dob">Date of Birth</label>
+          <Field name="dob" type="date" />
+          <ErrorMessage name="dob" class="error" />
         </div>
 
         <button type="submit" :disabled="loading">
-          {{ loading ? 'Submitting...' : 'Sign Up' }}
+          {{ loading ? 'Submitting...' : 'Save Profile' }}
         </button>
       </Form>
     </div>
@@ -39,30 +33,27 @@
 import { ref } from 'vue'
 import { Form, Field, ErrorMessage } from 'vee-validate'
 import * as yup from 'yup'
-import { useAuth } from '~/composables/useAuth'
 
 const loading = ref(false)
-const { signup } = useAuth()
 
 const schema = yup.object({
-  name: yup.string().required('Name is required'),
-  email: yup
+  phone: yup
     .string()
-    .email('Invalid email format')
-    .required('Email is required'),
-  password: yup
-    .string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
+    .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits')
+    .required('Phone number is required'),
+  address: yup.string().required('Address is required'),
+  dob: yup
+    .date()
+    .max(new Date(), 'Date of birth cannot be in the future')
+    .required('Date of birth is required'),
 })
 
-const onSubmit = async (values: { name: string; email: string; password: string }) => {
+const onSubmit = async (values: { phone: string; address: string; dob: string }) => {
   loading.value = true
   try {
-    // await signup(values)
-    navigateTo('/profile')
-  } catch (error: any) {
-    console.error('Signup failed:', error.message || error)
+    console.log('Profile submitted:', values)
+  } catch (error) {
+    console.error('Profile save failed:', error)
   } finally {
     loading.value = false
   }
@@ -81,18 +72,18 @@ body,
 .main-container {
   height: 100vh;
   width: 100vw;
-  background-color:#d5e6f7;
+  background-color: #d5e6f7;
 
   display: flex;
   justify-content: center;
-  align-items: center;  
+  align-items: center;
 }
 
-.login-container {
+.profile-container {
   background-color: white;
   padding: 2rem;
   border-radius: 10px;
-  width: 320px;
+  width: 360px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
