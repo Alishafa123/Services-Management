@@ -4,11 +4,9 @@
       <div class="title">Services</div>
 
       <Form @submit="onSubmit">
-        <!-- Onsite Services -->
         <div class="service-section">
           <h3>Onsite Services</h3>
 
-          <!-- Service tags -->
           <div class="tags">
             <span
               v-for="(service, index) in onsite"
@@ -21,7 +19,6 @@
             </span>
           </div>
 
-          <!-- Input field for adding/editing -->
           <div class="service-item">
             <Field
               name="newOnsiteName"
@@ -39,7 +36,6 @@
         <div class="service-section">
           <h3>Offsite Services</h3>
 
-          <!-- Service tags -->
           <div class="tags">
             <span
               v-for="(service, index) in offsite"
@@ -52,7 +48,6 @@
             </span>
           </div>
 
-          <!-- Input field for adding/editing -->
           <div class="service-item">
             <Field
               name="newOffsiteName"
@@ -75,17 +70,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Form, Field } from 'vee-validate'
-// import { useUserStore } from '~/stores/userStore'
-// import { createServices } from '~/utils/api'
+import { createServices } from '~/utils/api'
 
 const loading = ref(false)
-// const userStore = useUserStore()
 
-const onsite = ref([{ name: 'Onsite Service 1' }, { name: 'Onsite Service 2' }])
-const offsite = ref([{ name: 'Offsite Service 1' }, { name: 'Offsite Service 2' }])
+const onsite = ref([{ name: 'Onsite Service 1', price: 0 }, { name: 'Onsite Service 2', price: 0 }])
+const offsite = ref([{ name: 'Offsite Service 1', price: 0 }, { name: 'Offsite Service 2', price: 0 }])
 
-const newOnsite = ref<{ name: string }>({ name: '' })
-const newOffsite = ref<{ name: string }>({ name: '' })
+const newOnsite = ref<{ name: string; price: number }>({ name: '', price: 0 })
+const newOffsite = ref<{ name: string; price: number }>({ name: '', price: 0 })
 
 const editIndexOnsite = ref<number | null>(null)
 const editIndexOffsite = ref<number | null>(null)
@@ -94,13 +87,13 @@ const editService = (type: 'onsite' | 'offsite', index: number) => {
   if (type === 'onsite') {
     const service = onsite.value[index]
     if (service) {
-      newOnsite.value = { name: service.name }
+      newOnsite.value = { name: service.name, price: service.price }
       editIndexOnsite.value = index
     }
   } else {
     const service = offsite.value[index]
     if (service) {
-      newOffsite.value = { name: service.name }
+      newOffsite.value = { name: service.name, price: service.price }
       editIndexOffsite.value = index
     }
   }
@@ -109,20 +102,20 @@ const editService = (type: 'onsite' | 'offsite', index: number) => {
 const addOrUpdateService = (type: 'onsite' | 'offsite') => {
   if (type === 'onsite') {
     if (editIndexOnsite.value !== null) {
-      onsite.value[editIndexOnsite.value] = { name: newOnsite.value.name }
+      onsite.value[editIndexOnsite.value] = { name: newOnsite.value.name, price: 0 }
       editIndexOnsite.value = null
     } else {
-      onsite.value.push({ name: newOnsite.value.name })
+      onsite.value.push({ name: newOnsite.value.name, price: 0 }) // 👈 default price = 0
     }
-    newOnsite.value = { name: '' }
+    newOnsite.value = { name: '', price: 0 }
   } else {
     if (editIndexOffsite.value !== null) {
-      offsite.value[editIndexOffsite.value] = { name: newOffsite.value.name }
+      offsite.value[editIndexOffsite.value] = { name: newOffsite.value.name, price: 0 }
       editIndexOffsite.value = null
     } else {
-      offsite.value.push({ name: newOffsite.value.name })
+      offsite.value.push({ name: newOffsite.value.name, price: 0 }) // 👈 default price = 0
     }
-    newOffsite.value = { name: '' }
+    newOffsite.value = { name: '', price: 0 }
   }
 }
 
@@ -135,20 +128,27 @@ const onSubmit = async () => {
   loading.value = true
   try {
     const payload = {
-      onsite: onsite.value.map(s => ({ name: s.name })),
-      offsite: offsite.value.map(s => ({ name: s.name })),
+      onsite: onsite.value.map(s => ({ name: s.name, price: 0 })),
+      offsite: offsite.value.map(s => ({ name: s.name, price: 0 })),
     }
 
-    // const response = await createServices(payload)
-    // console.log('Services saved:', response)
-    console.log('Payload:', payload)
+    const response = await createServices(payload)
+    console.log('Services saved:', response)
+    navigateTo("/packages")
   } catch (err) {
     console.error(err)
   } finally {
     loading.value = false
   }
 }
+
+onMounted(async () => {
+  const response=await getAllServices();
+console.log(response)
+})
+
 </script>
+
 
 <style>
 .main-container {

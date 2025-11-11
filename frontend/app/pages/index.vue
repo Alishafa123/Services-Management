@@ -2,8 +2,7 @@
   <div class="main-container">
     <div class="login-container">
       <div class="title">Signup Form</div>
-      <Form @submit="onSubmit">
-      <!-- <Form @submit="onSubmit" :validation-schema="schema"> -->
+      <Form @submit="onSubmit" :validation-schema="schema">
 
         <div class="form-group">
           <label for="name">Name</label>
@@ -59,7 +58,7 @@ const schema = yup.object({
 const onSubmit = async (values: { name: string; email: string; password: string }) => {
   loading.value = true
   try {
-    // await signup(values)
+    await signup(values)
     navigateTo('/profile')
   } catch (error: any) {
     console.error('Signup failed:', error.message || error)

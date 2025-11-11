@@ -4,7 +4,6 @@
       <div class="title">Create Package</div>
 
       <Form @submit="onSubmit">
-        <!-- Package Name -->
         <div class="package-name">
           <Field
             name="packageName"
@@ -14,7 +13,6 @@
           />
         </div>
 
-        <!-- Onsite Services -->
         <div class="service-section">
           <h3>Onsite Services</h3>
           <div class="tags">
@@ -71,15 +69,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Form, Field } from 'vee-validate'
-// import { useUserStore } from '~/stores/userStore'
-import { getServiceByUserId } from '~/utils/api'
+import { getAllServices } from '~/utils/api'
 
 const loading = ref(false)
 const packageName = ref('')
 const onsite = ref<{ name: string; id: number }[]>([])
 const offsite = ref<{ name: string; id: number }[]>([])
 const selectedServices = ref<{ name: string; id: number }[]>([])
-// const userStore = useUserStore()
 
 onMounted(async () => {
   await fetchServices()
@@ -88,9 +84,9 @@ onMounted(async () => {
 const fetchServices = async () => {
   try {
     loading.value = true
-    // const userId = userStore.user?.id
-    const userId = 1 // <-- replace this with userStore.user.id
-    const response = await getServiceByUserId(userId)
+    const response = await getAllServices() as any
+
+    console.log(response)
     onsite.value = response.onsite || []
     offsite.value = response.offsite || []
   } catch (error) {
@@ -100,7 +96,6 @@ const fetchServices = async () => {
   }
 }
 
-// Toggle selection of service
 const toggleService = (service: { name: string; id: number }) => {
   const exists = selectedServices.value.find(s => s.id === service.id)
   if (exists) {
@@ -110,17 +105,14 @@ const toggleService = (service: { name: string; id: number }) => {
   }
 }
 
-// Check if service is selected
 const isSelected = (service: { id: number }) => {
   return selectedServices.value.some(s => s.id === service.id)
 }
 
-// Remove from selected package list
 const removeFromPackage = (index: number) => {
   selectedServices.value.splice(index, 1)
 }
 
-// Submit
 const onSubmit = async () => {
   if (!packageName.value.trim()) {
     alert('Please enter a package name.')
@@ -133,13 +125,14 @@ const onSubmit = async () => {
   }
 
   const payload = {
-    // userId: userStore.user.id,
-    packageName: packageName.value,
+    name: packageName.value,
     services: selectedServices.value.map(s => s.id),
+    price:0
   }
 
   console.log('Saving package:', payload)
-  // await createPackage(payload)
+  await createPackage(payload)
+  navigateTo("/setPrice")
 }
 </script>
 

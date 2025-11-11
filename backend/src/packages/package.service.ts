@@ -15,11 +15,12 @@ export class PackageService {
       userId: dto.userId,
       services: dto.services,
       price: dto.price,
+      name:dto.name
     } as any);
   }
 
-  async getAllPackages() {
-    return await this.packageModel.findAll({ include: { all: true } });
+  async getAllPackages(userId: number) {
+    return await this.packageModel.findAll({ where: { userId },include: { all: true } });
   }
 
   async getPackageById(id: number) {

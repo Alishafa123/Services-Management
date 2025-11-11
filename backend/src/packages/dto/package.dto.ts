@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsNumber, ArrayNotEmpty, ArrayMinSize } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, ArrayNotEmpty, ArrayMinSize, IsString } from 'class-validator';
 
 export class CreatePackageDto {
   @IsNumber()
@@ -10,6 +10,9 @@ export class CreatePackageDto {
   services: number[];
 
   @IsNumber()
-  @IsNotEmpty()
   price: number;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string
 }

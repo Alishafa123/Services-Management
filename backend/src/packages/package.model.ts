@@ -24,4 +24,10 @@ export class Package extends Model<Package> {
     allowNull: false,
   })
   price: number;
+
+   @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  name: number;
 }

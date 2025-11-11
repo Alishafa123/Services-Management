@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Delete,Query } from '@nestjs/common';
 import { PackageService } from './package.service';
 import { CreatePackageDto } from './dto/package.dto';
 
@@ -11,15 +11,11 @@ export class PackageController {
     return this.packageService.createPackage(dto);
   }
 
-  @Get()
-  async getAllPackages() {
-    return this.packageService.getAllPackages();
-  }
-
-  @Get(':id')
-  async getPackageById(@Param('id') id: number) {
-    return this.packageService.getPackageById(id);
-  }
+ @Get()
+async getAllPackages(@Query('userId') userId: string) {
+  console.log('UserID query:', userId);
+  return this.packageService.getAllPackages(+userId);
+}
 
   @Delete(':id')
   async deletePackage(@Param('id') id: number) {

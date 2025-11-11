@@ -1,38 +1,57 @@
-import { useUserStore } from '../stores/userStore'
 
 const API_URL = "http://localhost:3001"
 
-// Profile APIs
-export const createProfile = async (data: { phone: string; address: string; dob: Date }) => {
-  const userStore = useUserStore()
+const getUserId = () => {
+  const user = useCookie<any>("user")
+  return user.value?.id
+}
+
+export const createProfile = async (data: { phone: string; address: string; dob: string }) => {
+  const userId = getUserId()
+  console.log("cookie value: ", userId)
+
   const response = await $fetch(`${API_URL}/profiles`, {
     method: 'POST',
     body: {
-      userId: userStore.user?.id,
+      userId,
       ...data,
     },
   })
   return response
 }
 
-// Service APIs
 export const createServices = async (data: {
   onsite: { name: string; price: number }[]
   offsite: { name: string; price: number }[]
 }) => {
+  const userId = getUserId()
+  
   const response = await $fetch(`${API_URL}/services/bulk`, {
     method: 'POST',
-    body: data,
+    body: {
+      userId,
+      ...data,
+    },
   })
   return response
 }
 
 export const getAllServices = async () => {
-  const response = await $fetch(`${API_URL}/services`, {
-    method: 'GET',
+  const userId = getUserId()
+
+  if (!userId) {
+    console.error("User ID not found in cookie")
+    return
+  }
+  
+  const response = await $fetch(`${API_URL}/services/${userId}`, {
+    method: "GET",
   })
+
+  console.log("Services:", response)
   return response
 }
+
 
 export const getServiceById = async (id: string) => {
   const response = await $fetch(`${API_URL}/services/${id}`, {
@@ -42,8 +61,7 @@ export const getServiceById = async (id: string) => {
 }
 
 export const getServiceByuserId = async () => {
-    const userStore = useUserStore()
-   const userId = userStore.user?.id
+   const userId = 1
   const response = await $fetch(`${API_URL}/services/${userId}`, {
     method: 'GET',
   })
@@ -65,23 +83,29 @@ export const deleteService = async (id: string) => {
   return response
 }
 
-// Package APIs
 export const createPackage = async (data: {
   name: string
-  description?: string
   services: number[]
-  totalPrice: number
+  price:number
 }) => {
+  const userId = getUserId()
   const response = await $fetch(`${API_URL}/packages`, {
     method: 'POST',
-    body: data,
+    body:{userId , ...data}
   })
   return response
 }
 
 export const getAllPackages = async () => {
-  const response = await $fetch(`${API_URL}/packages`, {
-    method: 'GET',
+  const userId = getUserId()
+
+  if (!userId) {
+    console.error("User ID not found in cookie")
+    return
+  }
+
+  const response = await $fetch(`${API_URL}/packages?userId=${userId}`, {
+    method: 'GET',  
   })
   return response
 }
@@ -99,3 +123,23 @@ export const deletePackage = async (id: number) => {
   })
   return response
 }
+
+
+export const updatePricing = async (data: {
+  services: { id: number; price: number }[],
+  packages: { id: number; price: number }[]
+}) => {
+  const userId = getUserId()
+
+  if (!userId) {
+    console.error("User ID not found in cookie")
+    return
+  }
+
+  const response = await $fetch(`${API_URL}/pricing/${userId}`, {
+    method: 'PUT', 
+    body: data
+  })
+  return response
+}
+

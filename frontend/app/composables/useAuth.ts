@@ -1,5 +1,4 @@
 import { useUserStore } from "../stores/userStore";
-const userStore = useUserStore();
 export const useAuth = () => {
   const user = useCookie<any>("user");
   const API_URL = "http://localhost:3001";
@@ -13,8 +12,7 @@ export const useAuth = () => {
       method: "POST",
       body: data,
     });
-    user.value = response.user;
-    userStore.setUser(response);
+    user.value = response;
     console.log(response);
   };
 

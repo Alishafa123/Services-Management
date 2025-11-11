@@ -33,13 +33,14 @@
 import { ref } from 'vue'
 import { Form, Field, ErrorMessage } from 'vee-validate'
 import * as yup from 'yup'
+import { createProfile } from "~/utils/api"
 
 const loading = ref(false)
 
 const schema = yup.object({
   phone: yup
     .string()
-    .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits')
+    .matches(/^[0-9]{11}$/, 'Phone number must be 11 digits')
     .required('Phone number is required'),
   address: yup.string().required('Address is required'),
   dob: yup
@@ -51,7 +52,9 @@ const schema = yup.object({
 const onSubmit = async (values: { phone: string; address: string; dob: string }) => {
   loading.value = true
   try {
+    createProfile(values)
     console.log('Profile submitted:', values)
+    navigateTo('/services')
   } catch (error) {
     console.error('Profile save failed:', error)
   } finally {

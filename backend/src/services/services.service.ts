@@ -1,12 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Service, ServiceType } from './service.model';
-import { CreateServiceDto } from './dto/create-service.dto';
+import { CreateServiceDto,ServiceItemDto } from './dto/create-service.dto';
 
 @Injectable()
 export class ServicesService {
-  async getAllServices(): Promise<Service[]> {
-    return await Service.findAll<Service>({ include: { all: true } });
+  
+  async getAllServices(userId: number): Promise<{ onsite: ServiceItemDto[], offsite: ServiceItemDto[] }> {
+    const services = await Service.findAll({
+      where: { userId },
+      include: { all: true },
+      raw: true,
+    });
+
+    const onsite = services
+      .filter(s => s.type === 'onsite')
+      .map(s => ({ id: s.id, name: s.name, price: s.price })); // ✅ include id
+
+    const offsite = services
+      .filter(s => s.type === 'offsite')
+      .map(s => ({ id: s.id, name: s.name, price: s.price })); // ✅ include id
+
+    return { onsite, offsite };
   }
+
+
 
   async getServiceById(id: string): Promise<Service> {
     const service = await Service.findByPk<Service>(id, { include: { all: true } });
